@@ -1,0 +1,19 @@
+2 1 40 // rank 1 is added with id 40
+0 15 673 // key 15 is put on storage node 40, (rank 1)
+1 15 // key 15 is currently on storage node 40
+0 25 12345 // key 25 is put on storage node 40, (rank 1)
+2 2 10 // rank 2 is added with id 10
+0 35 54321 // key 35 is put on storage node 40, (rank 1)
+1 35 // key 35 is currently on storage node 40
+0 10 11111 // key 10 is put on storage node 10, (rank 2)
+3 40 // storage node 40 (rank 1) is removed; and,
+// keys 15, 25, and 35 are moved to storage node 1000 (rank 3)
+1 35 // key 35 is currently on storage node 1000
+1 15 // key 15 is currently on storage node 1000
+2 1 20 // rank 1 is added with id 20; and,
+// key 15 is moved to storage node 20 (rank 1)
+1 15 // key 15 is currently on storage node 20
+0 20 1 // key 20 is put on storage node 20 (rank 1)
+0 5 99999 // key 5 is put on storage node 10 (rank 2)
+1 15 // key 15 is currently on storage node 20
+4

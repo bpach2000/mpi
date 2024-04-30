@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 import sys
 from mpi4py import MPI #mpi4py library
-from dht-globals import * #global variables
+from dht_globals import MAX, PUT, GET, ADD, REMOVE, END, RETVAL, ACK
 from command import commandNode #command node code
 
 # on an END message, the head node is to contact all storage nodes and tell them
@@ -44,6 +45,7 @@ def getKeyVal(source):
 def handleMessages():
 
     status = MPI.Status() # get a status object
+    print(status)
     
     while True:
         # Peek at the message
@@ -53,6 +55,7 @@ def handleMessages():
         # what the tag of that message was (the tag is the command)
         source = status.Get_source()
         tag = status.Get_tag()
+        print(f"Source (rank): {source}, tag (command) {tag}")
 
         # now take the appropriate action
         # code for END and most of GET is given; others require your code
