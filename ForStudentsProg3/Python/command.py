@@ -1,13 +1,6 @@
 import sys
 from mpi4py import MPI #mpi4py library
-from dht_globals import MAX, PUT, GET, ADD, REMOVE, END, RETVAL, ACK #global variables
-
-# def commandNode(): 
-    
-#     dummy = 0
-#     MPI.COMM_WORLD.send(dummy, dest=0, tag=END)
-#     print("command finalizing")
-#     exit(0)
+from dht_globals import * #global variables
 
 def __init():
     global keys
@@ -29,45 +22,50 @@ def commandNode():
     global keys
     __init()
 
-    print("ADDING")
-    MPI.COMM_WORLD.send([3, 500], dest=0, tag=ADD)
+    print("ADD: 2, rank: 1, ID: 20")
+    MPI.COMM_WORLD.send([1, 20], dest=0, tag=ADD)
+    MPI.COMM_WORLD.recv(source=0, tag=ACK)
+
+    print("ADD: 2, rank: 2, ID: 10")
+    MPI.COMM_WORLD.send([2, 10], dest=0, tag=ADD)
     MPI.COMM_WORLD.recv(source=0, tag=ACK)
     
-    print("PUTTING")
-    for i in range(250, 750 + 1, 5):
-        MPI.COMM_WORLD.send([i, i], dest=0, tag=PUT)
-        MPI.COMM_WORLD.recv(source=0, tag=ACK)
-        keys[i] = True
-
-    __getAll()
-
-    print("ADDING storage id 400")
-    MPI.COMM_WORLD.send([5, 400], dest=0, tag=ADD)
+    print("PUT: 0, key: 10, val: 11111")
+    MPI.COMM_WORLD.send([10, 11111], dest=0, tag=PUT)
     MPI.COMM_WORLD.recv(source=0, tag=ACK)
+    # keys[10] = 11111
 
-    __getAll()
+    print("GET: 10 and should get 11111")
+    MPI.COMM_WORLD.send(10, dest=0, tag=GET)
+    answer = MPI.COMM_WORLD.recv(source=0, tag=RETVAL)
+    print(f"val is {answer[0]}, storage id is {answer[1]}")
 
-    print("PUTTING")
-    for i in range(101, 451 + 1, 5):
-        MPI.COMM_WORLD.send([i, i], dest=0, tag=PUT)
-        MPI.COMM_WORLD.recv(source=0, tag=ACK)
-        keys[i] = True
+    # print("PUT: 0, key: 25, val: 12345")
+    # MPI.COMM_WORLD.send([25, 12345], dest=0, tag=PUT)
+    # MPI.COMM_WORLD.recv(source=0, tag=ACK)
+    # # keys[25] = 12345
 
-    __getAll()
+    # print("Trying get 25 and should get 12345")
+    # MPI.COMM_WORLD.send(25, dest=0, tag=GET)
+    # answer = MPI.COMM_WORLD.recv(source=0, tag=RETVAL)
+    # print(f"val is {answer[0]}, storage id is {answer[1]}")
 
-    print("ADDING storage id 475")
-    MPI.COMM_WORLD.send([4, 475], dest=0, tag=ADD)
-    MPI.COMM_WORLD.recv(source=0, tag=ACK)
+    # print("PUT: 0, key: 15, val: 673")
+    # MPI.COMM_WORLD.send([15, 673], dest=0, tag=PUT)
+    # MPI.COMM_WORLD.recv(source=0, tag=ACK)
+    # # keys[25] = 12345
 
-    __getAll()
+    # print("Trying get 15 and should get 673")
+    # MPI.COMM_WORLD.send(15, dest=0, tag=GET)
+    # answer = MPI.COMM_WORLD.recv(source=0, tag=RETVAL)
+    # print(f"val is {answer[0]}, storage id is {answer[1]}")
 
-    print("PUTTING")
-    for i in range(403, 393 + 1, 5):
-        MPI.COMM_WORLD.send([i, i], dest=0, tag=PUT)
-        MPI.COMM_WORLD.recv(source=0, tag=ACK)
-        keys[i] = True
+    # print("PUT: 0, key: 15, val: 673")
+    # MPI.COMM_WORLD.send([15, 673], dest=0, tag=PUT)
+    # MPI.COMM_WORLD.recv(source=0, tag=ACK)
+    # keys[15] = 673
 
-    __getAll()
+    # __getAll()
 
     MPI.COMM_WORLD.send(0, dest=0, tag=END)
     print("command finalizing")

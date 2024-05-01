@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/ual-laptop/Documents/repos/mpi/ForStudentsProg3/Python/dht.py", line 176, in <module>
+    handleMessages()
+  File "/mnt/c/Users/ual-laptop/Documents/repos/mpi/ForStudentsProg3/Python/dht.py", line 115, in handleMessages
+    add(source)
+  File "/mnt/c/Users/ual-laptop/Documents/repos/mpi/ForStudentsProg3/Python/dht.py", line 74, in add
+    if newID > myStorageId and newID < childId:
+UnboundLocalError: local variable 'childId' referenced before assignment

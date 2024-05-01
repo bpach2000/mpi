@@ -14,6 +14,7 @@ def headEnd():
     for i in range(1,numProcesses-1):
         MPI.COMM_WORLD.send(dummy, dest=i, tag=END)
     MPI.Finalize()
+    print("Shutdown command sent to all nodes.")
     sys.exit(0)
     
 # on an END message, a storage node just calls MPI_Finalize and exits
@@ -65,35 +66,15 @@ def put(source):
         MPI.COMM_WORLD.send(key_value, dest=childRank, tag=PUT)
 
 def add(source):
-    #global myStorageId, childRank, childId
+    global myStorageId, childRank, childId
 
     # get the rank and ID for the new node
     new = MPI.COMM_WORLD.recv(source=source, tag=ADD)
     newRank, newID = new
 
-    if newID > myStorageId and newID < childId:
+    if newID < childId:
         # save the old child rank
         oldChildRank = childRank
-
-        # update the new node
-        MPI.COMM_WORLD.send(new.append(oldChildRank), dest=childRank, tag=ADD_HELPER)
-
-        childId = newID
-        childRank = newRank
-    else:
-        # keep fowarding put request to child node
-        MPI.COMM_WORLD.send(new, dest=childRank, tag=ADD)
-
-def add_helper(source):
-    global myStorageId, myRank, childRank, childId
-
-    # get the rank, ID and child rank for the new node
-    new = MPI.COMM_WORLD.recv(source=source, tag=ADD_HELPER)
-    newRank, newID, childR = new
-
-    myRank = newRank
-    myStorageId = newID
-    childRank = childR
 
 def handleMessages():
     status = MPI.Status()  # get a status object
@@ -104,18 +85,22 @@ def handleMessages():
         # Get the source and the tag - which MPI rank sent the message, and what the tag of that message was
         source = status.Get_source()
         tag = status.Get_tag()
+        print(f"Source (rank): {source}, tag (command): {tag}")
 
-        # execute the following tag
+        # Now take the appropriate action
         if tag == END:
             if myRank == 0:
                 headEnd()
             else:
                 storageEnd()
         elif tag == ADD:
-            add(source)
-            #data = MPI.COMM_WORLD.recv(source=source, tag=tag)
-        elif tag == REMOVE:
+            #add(source)
             data = MPI.COMM_WORLD.recv(source=source, tag=tag)
+        elif tag == REMOVE:
+            # Receive and handle REMOVE message
+            data = MPI.COMM_WORLD.recv(source=source, tag=tag)
+            # Placeholder: implement actual logic here
+            print(f"Received REMOVE from {source}: {data}")
         elif tag == PUT:
             put(source)
         elif tag == GET:
@@ -125,21 +110,23 @@ def handleMessages():
             if myRank == 0:
                 data = MPI.COMM_WORLD.recv(source=source, tag=ACK)
                 MPI.COMM_WORLD.send(data, dest=numProcesses-1, tag=ACK)
+                print(f"Fowarded ACK from {source}: {data}")
             else:
                 # node just passes on the acknowledge
                 data = MPI.COMM_WORLD.recv(source=source, tag=ACK)
                 MPI.COMM_WORLD.send(data, dest=childRank, tag=ACK)
+                print(f"Received RETVAL from {source}: {data}")
         elif tag == RETVAL:
             # send message from rank 0 back to command node
             if myRank == 0:
                 data = MPI.COMM_WORLD.recv(source=source, tag=RETVAL)
                 MPI.COMM_WORLD.send(data, dest=numProcesses-1, tag=RETVAL)
+                print(f"Fowarded RETVAL from {source}: {data}")
             else:
                 # node just passes on the recieve
                 data = MPI.COMM_WORLD.recv(source=source, tag=RETVAL)
                 MPI.COMM_WORLD.send(data, dest=childRank, tag=RETVAL)
-        elif tag == ADD_HELPER:
-            add_helper(source)
+                print(f"Received RETVAL from {source}: {data}")
         else:
             # Unknown tag received, handle error case
             print(f"ERROR: Unhandled tag {tag} received from rank {source}")
@@ -153,6 +140,7 @@ if __name__ == "__main__":
     # get my rank and the total number of processes 
     numProcesses = MPI.COMM_WORLD.Get_size()
     myRank = MPI.COMM_WORLD.Get_rank()
+    print(f"numProcesses {numProcesses} myRank {myRank}")
 
     # set up the head node 
     if myRank == 0:

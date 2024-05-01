@@ -7,3 +7,4 @@ REMOVE = 3
 END = 4
 RETVAL = 5
 ACK = 6
+ADD_HELPER = 7
